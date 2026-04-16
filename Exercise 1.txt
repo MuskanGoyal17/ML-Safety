@@ -1,1 +1,80 @@
-fy
+Exercise 1.1: Safety vs. Security
+
+In machine learning systems, safety refers to preventing harm caused by unintended failures, errors, or unpredictable behavior of the system. It focuses on ensuring that the system behaves reliably under normal and unexpected conditions without causing accidents.
+In contrast, security refers to protecting the system against intentional malicious attacks. It involves defending the system from adversaries who try to manipulate inputs, models, or data to cause harmful outcomes.
+
+Example in an ML-based Autonomous Vehicle-
+Safety concern: The vehicle fails to detect a pedestrian due to poor lighting or sensor limitations, leading to a potential accident. This is an unintentional failure of the system.
+Security concern: An attacker modifies a stop sign with stickers so that the ML model misclassifies it as a speed limit sign. This is an intentional attack designed to deceive the system.
+
+Exercise 1.2: The EU AI Act 
+
+Main Risk Categories in the EU AI Act-
+The EU AI Act classifies AI systems into four main categories:
+Unacceptable risk: These systems are prohibited because they pose a clear threat to safety or fundamental rights (e.g., social scoring systems).
+High risk: These systems are allowed but heavily regulated, as they can significantly impact safety or rights (e.g., AI in healthcare or transportation).
+Limited risk: These systems require some transparency obligations, such as informing users that they are interacting with AI.
+Minimal risk: These systems pose little to no risk and are largely unregulated (e.g., recommendation systems).
+
+Classification of Systems-
+
+a) Autonomous vehicle perception system:
+This system falls under the high-risk category because it is used in a safety-critical domain (transportation). Errors in perception can directly lead to accidents and harm to humans.
+b) Chatbot:
+A chatbot typically falls under the limited-risk category because it interacts with users but does not directly pose a threat to safety. However, it must inform users that they are communicating with an AI system
+
+Obligations for High-Risk Systems-
+
+The EU AI Act imposes several obligations on providers of high-risk AI systems, including:
+Ensuring high-quality and unbiased training data
+Maintaining detailed technical documentation
+Providing transparency and clear information to users
+Enabling human oversight of the system
+Ensuring robustness, accuracy, and cybersecurity
+Performing conformity assessments before deployment
+Registering the system in an EU database
+
+Exercise 1.3: Build the Right Model vs. Build the Model Right
+
+Failure from “Build the right model” (Correctness):
+A failure in correctness occurs when the model does not properly capture the intended problem. For example, a pedestrian-detection model trained only on images of adults may fail to detect children or people in unusual poses. In this case, the model is solving an incomplete version of the problem, leading to unsafe behavior.
+
+Failure from “Build the model right” (Robustness):
+A failure in robustness occurs when the model is not built or tested adequately for real-world conditions. For example, a pedestrian-detection model that performs well in clear daylight may fail in low-light, foggy, or rainy conditions. This indicates that the model was not developed with sufficient robustness to handle environmental variability
+
+Exercise 1.4: First Impressions
+
+Situations where the model’s predictions may not be trusted -
+Adverse weather or nighttime conditions:
+The model was trained only on clear and sunny daytime data, so it may fail in rain, fog, or low-light conditions due to lack of exposure to such environments.
+Occluded or partially visible objects:
+If pedestrians, vehicles, or traffic lights are partially hidden (e.g., behind other vehicles or objects), the model may fail to detect them correctly.
+Unusual or complex traffic scenarios:
+Situations such as crowded intersections, construction zones, or uncommon object appearances may not be well represented in the training data, leading to unreliable predictions.
+
+Most safety-critical output label:
+The pedestrian present label is the most safety-critical if missed.
+Failing to detect a pedestrian can directly lead to severe accidents and risk to human life, making it more critical than missing a vehicle or traffic light in many scenarios.
+
+Additional information required before deployment:
+Before deploying this model in a real vehicle, the following information would be necessary:
+Performance metrics (e.g., accuracy, precision, recall), especially false negative rates
+Evaluation results under diverse conditions (nighttime, rain, fog, etc.)
+Details about the training dataset and its diversity
+Robustness testing and validation in real-world scenarios
+Information about system limitations and failure cases
+
+Exercise 1.5: Course Topics and the Safety Case
+
+Testing and validation:
+Provides performance evidence (accuracy, recall) showing the model works reliably.
+Explainability:
+Helps verify that the model makes decisions based on correct features.
+Uncertainty estimation:
+Allows the model to indicate low confidence, enabling safer fallback actions.
+Anomaly detection:
+Identifies unfamiliar inputs where predictions may be unreliable.
+Adversarial machine learning:
+Ensures robustness against maliciously manipulated inputs.
+Alignment:
+Ensures the model’s behavior matches human safety goals.
