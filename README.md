@@ -53,8 +53,4 @@ Add `--device cpu --batch-size 32 --epochs 3 --num-workers 2` if you don't have 
 - `outputs/3.6_test_metrics.json` + `3.6_test_summary.txt` — final metrics
 - `checkpoints/{task}.pt` — best-validation model weights (used by Sheets 4–9)
 
-## Note on image paths
 
-`dataset.py::frame_to_path` resolves a frame id to `<split>/rgb-front/{frame:06d}.jpg`.
-If your images use a different extension or naming scheme, edit that one
-function — every script will pick up the change.
