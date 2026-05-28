@@ -1,43 +1,5 @@
 # Exercise Sheet 3 — Report
 
-## 3.1 Computational Graphs *(optional, included once as requested)*
-
-The function
-
-$$f(x, y, z) = \frac{(x \cdot y)\sqrt{z}}{\exp(x)}$$
-
-decomposes into the following intermediate nodes:
-
-```
-a = x * y          (multiplication)
-b = sqrt(z)        (unary)
-c = a * b          (multiplication)
-d = exp(x)         (unary, note: x is reused)
-f = c / d          (division)
-```
-
-The graph is a DAG with three input leaves (`x`, `y`, `z`), five intermediate
-operation nodes, and one output (`f`). The key structural feature is that `x`
-fans out to *two* downstream paths — into `a = x·y` and into `d = exp(x)` —
-which means the gradient with respect to `x` will be the sum of contributions
-along both paths (this is exactly the multivariate chain rule that
-backpropagation implements).
-
-From this graph we can compute, by reverse-mode automatic differentiation, the
-partial derivatives ∂f/∂x, ∂f/∂y, and ∂f/∂z — i.e. the gradient of the scalar
-output with respect to every leaf input — in a single backward pass with cost
-proportional to the forward pass. We could also compute *any* intermediate
-sensitivity like ∂f/∂a or ∂f/∂c if we wanted to, because reverse-mode AD
-naturally produces the adjoint of every node it visits. Forward-mode AD,
-conversely, would let us compute ∂f/∂x cheaply but would require one pass per
-input variable.
-
-## 3.2 Backpropagation *(optional — skipped per request)*
-
-## 3.3 Gradient Descent *(optional — skipped per request)*
-
----
-
 ## 3.4 Dataset Exploration
 
 The training-split CSV contains **7,200 frames**, with the frame index ranging
