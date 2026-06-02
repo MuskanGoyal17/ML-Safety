@@ -1,0 +1,12 @@
+Exercise 4.7 — Per-Class Evaluation Results
+============================================================
+task                  acc   prec    rec     F1
+------------------------------------------------
+traffic_light       0.944  0.942  0.982  0.962
+pedestrian          0.627  0.274  0.548  0.366
+vehicle             0.854  0.965  0.835  0.895
+
+Confusion matrices (TN / FP / FN / TP):
+  traffic_light       TN=859  FP=157  FN=46  TP=2538
+  pedestrian          TN=1871  FP=1023  FN=319  TP=387
+  vehicle             TN=819  FP=81  FN=446  TP=2254

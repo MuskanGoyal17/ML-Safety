@@ -1,0 +1,30 @@
+ODD k-Projection Coverage Report
+============================================================
+
+ODD dimensions: ['weather', 'lighting', 'road_type', 'speed_range', 'pedestrian_present', 'vehicle_present', 'traffic_light_present']
+ODD total space: 576 combinations
+
+Split: test (clear/day)  (3600 frames)
+  k=1: coverage=0.5556  (10/18 projections covered)
+  k=2: coverage=0.3066  (42/137 projections covered)
+  k=3: coverage=0.1678  (96/572 projections covered)
+
+Split: test-fog  (3600 frames)
+  k=1: coverage=0.5556  (10/18 projections covered)
+  k=2: coverage=0.3066  (42/137 projections covered)
+  k=3: coverage=0.1678  (96/572 projections covered)
+
+Split: test-night  (3600 frames)
+  k=1: coverage=0.5556  (10/18 projections covered)
+  k=2: coverage=0.3066  (42/137 projections covered)
+  k=3: coverage=0.1678  (96/572 projections covered)
+
+Split: test-town-01  (3600 frames)
+  k=1: coverage=0.5556  (10/18 projections covered)
+  k=2: coverage=0.3066  (42/137 projections covered)
+  k=3: coverage=0.1678  (96/572 projections covered)
+
+Combined (all splits):
+  k=1: coverage=0.6667  (12/18 projections covered)
+  k=2: coverage=0.4380  (60/137 projections covered)
+  k=3: coverage=0.2832  (162/572 projections covered)
