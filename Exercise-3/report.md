@@ -1,42 +1,5 @@
 # Exercise Sheet 3 — Report
 
-## 3.1 Computational Graphs *(optional, included once as requested)*
-
-The function
-
-$$f(x, y, z) = \frac{(x \cdot y)\sqrt{z}}{\exp(x)}$$
-
-decomposes into the following intermediate nodes:
-
-```
-a = x * y          (multiplication)
-b = sqrt(z)        (unary)
-c = a * b          (multiplication)
-d = exp(x)         (unary, note: x is reused)
-f = c / d          (division)
-```
-
-The graph is a DAG with three input leaves (`x`, `y`, `z`), five intermediate
-operation nodes, and one output (`f`). The key structural feature is that `x`
-fans out to *two* downstream paths — into `a = x·y` and into `d = exp(x)` —
-which means the gradient with respect to `x` will be the sum of contributions
-along both paths (this is exactly the multivariate chain rule that
-backpropagation implements).
-
-From this graph we can compute, by reverse-mode automatic differentiation, the
-partial derivatives ∂f/∂x, ∂f/∂y, and ∂f/∂z — i.e. the gradient of the scalar
-output with respect to every leaf input — in a single backward pass with cost
-proportional to the forward pass. We could also compute *any* intermediate
-sensitivity like ∂f/∂a or ∂f/∂c if we wanted to, because reverse-mode AD
-naturally produces the adjoint of every node it visits. Forward-mode AD,
-conversely, would let us compute ∂f/∂x cheaply but would require one pass per
-input variable.
-
-## 3.2 Backpropagation *(optional — skipped per request)*
-
-## 3.3 Gradient Descent *(optional — skipped per request)*
-
----
 
 ## 3.4 Dataset Exploration
 
@@ -240,11 +203,6 @@ pedestrian model fails on both axes — F1 of 0.366 and a 45.2%
 miss rate that, in a system without sensor redundancy, propagates
 directly to the loss event.
 
-**This is the headline finding of Sheet 3 for the safety case:** as
-currently trained, the perception stack is not deployment-ready, and the
-pedestrian detector is the binding constraint. This evidence feeds
-directly into Sheet 5 (ODD refinement) and Sheet 10 (deployment
-recommendation).
 
 The trained checkpoints (`checkpoints/{task}.pt`) are persisted and will
 be reused in every subsequent sheet.
@@ -306,20 +264,4 @@ metrics alone**. Specifically:
 - *No claim* can be made about generalization to a town not in the training
   set. `test-town-01` will provide the first evidence for this.
 
-**Gaps to revisit in Sheets 4 and 5.** I will carry forward these uncovered
-dimensions as explicit gaps:
 
-- **G1** — rain / wet conditions
-- **G2** — fog / low visibility
-- **G3** — night / low light
-- **G4** — sudden lighting transitions (operational ODD only)
-- **G5** — alternate towns / unseen road layouts
-- **G6** — dusk / dawn
-
-In Sheet 4 these become test design targets (the held-out `test-fog`,
-`test-night`, `test-town-01` splits give direct measurements for G1, G2, G3,
-G5). In Sheet 5 the k-projection ODD coverage analysis will quantify which
-joint combinations of weather × lighting × town are unseen, and the ODD will
-be **refined**: either by restricting the deployable ODD to match what we
-have evidence for (a "sunny-only" deployment), or by expanding the training
-data to cover the gaps.
