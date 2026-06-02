@@ -7,11 +7,6 @@ For each task in {traffic_light, pedestrian, vehicle}:
   3. Save best-validation checkpoint to checkpoints/{task}.pt.
   4. Evaluate on test split: accuracy, precision, recall, F1, confusion matrix.
 
-Run:
-    python train_and_eval.py --data-root /path/to/dataset --epochs 5
-
-For CPU-only:
-    python train_and_eval.py --data-root /path/to/dataset --epochs 3 --batch-size 32
 """
 from __future__ import annotations
 
@@ -263,7 +258,7 @@ def main():
     report_path.write_text(json.dumps(results, indent=2))
     print(f"\nwrote {report_path}")
 
-    # Human-readable summary
+    # readable summary
     lines = ["Test-set metrics per model", "=" * 60,
              f"{'task':18s} {'acc':>6s} {'prec':>6s} {'rec':>6s} {'F1':>6s} {'n+':>6s}"]
     for r in results:
