@@ -1,1 +1,127 @@
-djskd
+
+# **Exercise 2.2 – ODD Specification**
+
+| Dimension        | Operating Conditions                  | Non-Operating Conditions                 | Runtime ODD Violation Detection                       |
+| ---------------- | ------------------------------------- | ---------------------------------------- | ----------------------------------------------------- |
+| Weather          | Clear and dry weather                 | Rain, fog, snow, storm                   | Visibility estimation / weather detection from camera |
+| Lighting         | Daytime with good visibility          | Night, dusk, dawn, strong glare          | Image brightness and illumination analysis            |
+| Camera Condition | Fully functional, unobstructed camera | Dirty, occluded, damaged, blurred camera | Image quality checks (blur/occlusion detection)       |
+| Scene Type       | Urban roads with intersections        | Highways, rural roads, off-road, tunnels | Map-based or scene classification                     |
+| Vehicle Speed    | 0–50 km/h urban driving               | Above 50 km/h or highway speeds          | Vehicle speed sensor monitoring                       |
+
+---
+
+# **Exercise 2.3 – Losses**
+
+| ID  | Loss Description                                         | Why Unacceptable                                  |
+| --- | -------------------------------------------------------- | ------------------------------------------------- |
+| L-1 | Collision with pedestrian                                | Can cause serious injury or death                 |
+| L-2 | Collision with another vehicle                           | Can cause fatalities, injury, and property damage |
+| L-3 | Traffic law violation (e.g., running red light)          | Endangers road users and violates regulations     |
+| L-4 | Sudden or unnecessary braking causing rear-end collision | Can injure passengers and other drivers           |
+| L-5 | Damage to vehicle or infrastructure                      | Financial loss and system failure                 |
+
+---
+
+# **Exercise 2.4 – Hazards**
+
+| ID  | Hazard                                                            | Loss(es)      | Likelihood | Severity |
+| --- | ----------------------------------------------------------------- | ------------- | ---------- | -------- |
+| H-1 | Pedestrian not detected by system                                 | L-1           | Medium     | High     |
+| H-2 | Vehicle ahead not detected                                        | L-2           | Medium     | High     |
+| H-3 | Traffic light missed or misinterpreted leading to unsafe crossing | L-3           | Medium     | High     |
+| H-4 | False obstacle detection causing unnecessary braking              | L-4           | Medium     | Medium   |
+| H-5 | Human operator fails to intervene in unsafe situation             | L-1, L-2, L-3 | Medium     | High     |
+| H-6 | System operates outside defined ODD (weather/lighting mismatch)   | L-1, L-2, L-3 | Medium     | High     |
+
+---
+
+# **Exercise 2.5 – Control Structure**
+
+```
+                Human Operator
+                      |
+        Emergency override / supervision
+                      |
+                      v
++--------------------------------------+
+|         Planning Module              |
++--------------------------------------+
+     ^            ^            ^
+     |            |            |
+Traffic Light  Pedestrian   Vehicle/
+ Detector       Detector    Distance Oracle
+     ^            ^            ^
+     |            |            |
+     +------------+------------+
+                  |
+               Camera
+                  |
+        Road Environment (CARLA)
+                  |
+                  v
+            Autonomous Vehicle
+                  |
+               Actuators
+     (steering, braking, throttle)
+```
+
+**Control Actions:**
+
+* Planning Module → Actuators: steering, braking, acceleration commands
+* Human Operator → Vehicle: override / emergency stop
+
+**Feedback:**
+
+* Camera → perception modules
+* Perception modules → planning module
+* Vehicle state → planning module and operator
+
+---
+
+# **Exercise 2.6 – Unsafe Control Actions (UCAs)**
+
+| ID    | Controller      | Control Action | UCA Type          | Hazard(s) | Unsafe Scenario                                    |
+| ----- | --------------- | -------------- | ----------------- | --------- | -------------------------------------------------- |
+| UCA-1 | Planning Module | Brake command  | Not provided      | H-1, H-2  | Pedestrian/vehicle present but no braking occurs   |
+| UCA-2 | Planning Module | Brake command  | Provided unsafely | H-4       | Braking occurs without real obstacle               |
+| UCA-3 | Planning Module | Brake command  | Wrong timing      | H-1, H-2  | Braking occurs too late to avoid collision         |
+| UCA-4 | Planning Module | Brake command  | Wrong duration    | H-4       | Braking continues longer than necessary            |
+| UCA-5 | Human Operator  | Override       | Not provided      | H-5       | Operator fails to intervene in dangerous situation |
+| UCA-6 | Human Operator  | Override       | Provided unsafely | H-4       | Operator overrides system unnecessarily            |
+| UCA-7 | Human Operator  | Override       | Wrong timing      | H-5       | Intervention happens too late                      |
+| UCA-8 | Human Operator  | Override       | Wrong duration    | H-4       | Override lasts longer than needed                  |
+
+---
+
+# **Exercise 2.7 – Safety Constraints**
+
+| UCA   | Safety Constraint                                                    | Level        | Verification          |
+| ----- | -------------------------------------------------------------------- | ------------ | --------------------- |
+| UCA-1 | System must ensure obstacle detection before brake decisions         | System-level | Simulation testing    |
+| UCA-2 | Braking must only trigger when obstacle confidence exceeds threshold | Model-level  | Model evaluation      |
+| UCA-3 | Perception-to-action delay must be below safety threshold            | System-level | Timing analysis       |
+| UCA-4 | Braking must stop once hazard is removed                             | System-level | Scenario testing      |
+| UCA-5 | Human operator must actively monitor system during operation         | System-level | Operational procedure |
+| UCA-6 | Overrides must only be triggered in verified hazardous conditions    | System-level | Testing + validation  |
+| UCA-7 | System must alert operator during uncertainty or hazard conditions   | System-level | System testing        |
+| UCA-8 | Control must automatically return to normal mode after override      | System-level | Integration testing   |
+
+---
+
+# **Exercise 2.8 – Causal Loss Scenarios**
+
+| UCA   | Causal Scenario                                        | Root Cause                          | Related Constraint              |
+| ----- | ------------------------------------------------------ | ----------------------------------- | ------------------------------- |
+| UCA-1 | Obstacle exists but perception fails to detect it      | Sensor limitations or model failure | Obstacle detection requirement  |
+| UCA-2 | False detection triggers unnecessary braking           | Perception error or noise           | Confidence threshold constraint |
+| UCA-3 | Delayed perception or processing leads to late braking | System latency                      | Timing constraint               |
+| UCA-4 | Planner does not stop braking after hazard disappears  | Stale perception feedback           | Brake stop condition            |
+| UCA-5 | Operator is distracted or fatigued and misses hazard   | Human attention limitation          | Monitoring requirement          |
+| UCA-6 | Operator misinterprets normal situation as dangerous   | Human error                         | Override validation constraint  |
+| UCA-7 | Operator reacts too slowly                             | Reaction time delay                 | Alerting requirement            |
+| UCA-8 | Operator forgets to release override                   | Mode confusion                      | Automatic reset constraint      |
+
+---
+
+
