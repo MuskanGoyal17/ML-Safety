@@ -1,16 +1,6 @@
 """
 Exercise 3.4 — Dataset Exploration
 
-Run:
-    python explore_dataset.py --data-root /path/to/dataset
-
-Where /path/to/dataset contains: train/, validation/, test/ (each with
-labels.csv and rgb-front/).
-
-Outputs:
-    outputs/3.4_class_distribution.png
-    outputs/3.4_example_grid.png
-    outputs/3.4_summary.txt
 """
 from __future__ import annotations
 
