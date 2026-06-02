@@ -1,0 +1,43 @@
+CARLA dataset exploration
+
+=== train (n=7200) ===
+  has_traffic_light    positive:   5276  ( 73.3%)
+  has_pedestrian       positive:   1718  ( 23.9%)
+  has_vehicle          positive:   5458  ( 75.8%)
+  joint label counts:
+    TL=1 PED=0 VEH=1 :   3040  (42.2%)
+    TL=1 PED=1 VEH=1 :   1125  (15.6%)
+    TL=0 PED=0 VEH=1 :   1063  (14.8%)
+    TL=1 PED=0 VEH=0 :    832  (11.6%)
+    TL=0 PED=0 VEH=0 :    547  ( 7.6%)
+    TL=1 PED=1 VEH=0 :    279  ( 3.9%)
+    TL=0 PED=1 VEH=1 :    230  ( 3.2%)
+    TL=0 PED=1 VEH=0 :     84  ( 1.2%)
+
+=== validation (n=3600) ===
+  has_traffic_light    positive:   2713  ( 75.4%)
+  has_pedestrian       positive:    914  ( 25.4%)
+  has_vehicle          positive:   2368  ( 65.8%)
+  joint label counts:
+    TL=1 PED=0 VEH=1 :   1339  (37.2%)
+    TL=1 PED=0 VEH=0 :    617  (17.1%)
+    TL=1 PED=1 VEH=1 :    523  (14.5%)
+    TL=0 PED=0 VEH=1 :    406  (11.3%)
+    TL=0 PED=0 VEH=0 :    324  ( 9.0%)
+    TL=1 PED=1 VEH=0 :    234  ( 6.5%)
+    TL=0 PED=1 VEH=1 :    100  ( 2.8%)
+    TL=0 PED=1 VEH=0 :     57  ( 1.6%)
+
+=== test (n=3600) ===
+  has_traffic_light    positive:   2584  ( 71.8%)
+  has_pedestrian       positive:    706  ( 19.6%)
+  has_vehicle          positive:   2700  ( 75.0%)
+  joint label counts:
+    TL=1 PED=0 VEH=1 :   1538  (42.7%)
+    TL=0 PED=0 VEH=1 :    597  (16.6%)
+    TL=1 PED=0 VEH=0 :    473  (13.1%)
+    TL=1 PED=1 VEH=1 :    458  (12.7%)
+    TL=0 PED=0 VEH=0 :    286  ( 7.9%)
+    TL=1 PED=1 VEH=0 :    115  ( 3.2%)
+    TL=0 PED=1 VEH=1 :    107  ( 3.0%)
+    TL=0 PED=1 VEH=0 :     26  ( 0.7%)

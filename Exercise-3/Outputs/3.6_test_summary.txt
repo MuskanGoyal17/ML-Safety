@@ -1,0 +1,6 @@
+Test-set metrics per model
+============================================================
+task                  acc   prec    rec     F1     n+
+traffic_light       0.944  0.942  0.982  0.962   2584
+pedestrian          0.627  0.274  0.548  0.366    706
+vehicle             0.854  0.965  0.835  0.895   2700
