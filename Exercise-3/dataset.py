@@ -1,12 +1,6 @@
 """
 CARLA binary-classification dataset.
 
-The CSV has columns:
-  frame, has_traffic_light, has_pedestrian, has_vehicle,
-  px_traffic_light, px_pedestrian, px_vehicle
-
-Images are assumed to live at:  <split_root>/rgb-front/{frame:06d}.png
-If your filenames differ, change `frame_to_path` below.
 """
 from __future__ import annotations
 
@@ -29,19 +23,14 @@ TASK_TO_COL = {
 
 
 def frame_to_path(split_root: Path, frame: int) -> Path:
-    """Resolve a frame id to its image path. Adjust if your layout differs.
-
-    CARLA dataset layout: <split>/rgb-front/{frame:06d}.jpg
-    """
+    
     return split_root / "rgb-front" / f"{frame:06d}.jpg"
 
 
 def default_transform(image_size: int = 224, train: bool = False):
     """ImageNet-normalized transform; mild geometric aug only if train=True.
 
-    Note: we DO NOT use color jitter or flips that change semantics — flipping
-    a scene horizontally is fine for these labels but we keep it conservative
-    and let the model learn from real diversity.
+    
     """
     if train:
         return transforms.Compose([
@@ -61,12 +50,6 @@ def default_transform(image_size: int = 224, train: bool = False):
 
 class CarlaBinaryDataset(Dataset):
     """One CARLA split, returning (image, label) for a single binary task.
-
-    Args:
-        split_root: e.g. .../train/  (the folder that contains rgb-front/ and labels.csv)
-        task: which of the three classifiers we're training
-        transform: torchvision transform; if None, default_transform(train=False)
-        csv_name: defaults to "labels.csv"
     """
 
     def __init__(
@@ -108,7 +91,7 @@ class CarlaBinaryDataset(Dataset):
         path = frame_to_path(self.split_root, int(row["frame"]))
         img = Image.open(path).convert("RGB")
         img = self.transform(img)
-        # Cross-entropy expects LongTensor class indices, 0/1
+        
         label = torch.tensor(int(bool(row[self.label_col])), dtype=torch.long)
         return img, label
 
