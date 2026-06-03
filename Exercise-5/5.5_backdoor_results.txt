@@ -1,0 +1,14 @@
+Exercise 5.5 — Backdoor Attack Results
+============================================================
+Trigger:         10×10 red square at pixel (10,10)
+Poison fraction: 10% of pedestrian-positive train frames
+
+Clean model    | clean test recall  : 0.5482
+Backdoored mdl | clean test recall  : 0.4037
+Backdoored mdl | ASR (triggered)    : 0.9972
+
+Interpretation:
+  The backdoored model retains 0.404 recall on clean images
+  (vs 0.548 for the original model) — behaviour looks normal.
+  But when the trigger is present, 99.7% of pedestrians are
+  classified as absent — the model has been covertly compromised.
