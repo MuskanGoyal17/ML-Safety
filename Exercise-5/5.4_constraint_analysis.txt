@@ -1,0 +1,18 @@
+Exercise 5.4 Q3 — Safety Constraint Analysis
+Constraint: if P(pedestrian) < θ=0.6, reduce speed ≤ 15 km/h
+============================================================
+
+T = 0.5:
+  Fraction of ALL frames with p_T < θ=0.6: 0.657
+  Of TRUE pedestrian frames: 0.520 have p_T < θ
+  → speed-reduction constraint triggers on 65.7% of frames
+
+T = 1.0:
+  Fraction of ALL frames with p_T < θ=0.6: 0.697
+  Of TRUE pedestrian frames: 0.576 have p_T < θ
+  → speed-reduction constraint triggers on 69.7% of frames
+
+T = 2.0:
+  Fraction of ALL frames with p_T < θ=0.6: 0.777
+  Of TRUE pedestrian frames: 0.644 have p_T < θ
+  → speed-reduction constraint triggers on 77.7% of frames
