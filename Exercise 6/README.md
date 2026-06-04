@@ -1,64 +1,82 @@
-Exercise 6
-Exercise 6.1: Why Explainability?
-Advantages in a safety-critical context:
+# Sheet 6 — Explainability
 
-Verification and Trust: Allows human operators (e.g., doctors, engineers) to verify that the model is using sound reasoning before acting on its predictions.
-Debugging Spurious Correlations: Helps identify if the model is relying on artifacts or biases in the training data rather than true causal features.
-Accountability: Facilitates compliance with legal and ethical standards (e.g., the "right to explanation" under GDPR) in high-stakes decisions.
+## Overview
 
-Disadvantages/Limitations of current methods:
+This sheet applies **Grad-CAM** (Gradient-weighted Class Activation Mapping) to the three ResNet-18 binary classifiers trained in Sheet 3 (`traffic_light`, `pedestrian`, `vehicle`). The goal is to understand *where* each model looks when making a prediction, diagnose failure modes on misclassified images, and assess how explanation quality degrades under out-of-distribution (OOD) conditions (fog, night).
 
-Lack of Fidelity: Explanations can be plausible but unfaithful, meaning they do not accurately reflect the model's true internal decision-making process (creating a false sense of security).
-Computational Cost: Generating explanations for large, complex models can introduce significant overhead.
-Fragility: Many methods are highly sensitive to minor input perturbations, yielding drastically different explanations for nearly identical inputs.
 
-Exercise 6.2: Local vs. Global Explainability
-Difference:
+## Method: Grad-CAM
 
-Local Explainability focuses on understanding the reasoning behind a single, specific prediction for a single data point.
-Global Explainability focuses on understanding the overall behavior, rules, and feature importance of the model across the entire dataset.
+Grad-CAM hooks into the last convolutional layer (`layer4[-1]` of ResNet-18). For each input image:
 
-Methods and Questions:
+1. Run a forward pass → get the class score for the predicted label.
+2. Backpropagate to compute gradients of that score w.r.t. every feature map channel.
+3. Global-average-pool the gradients → importance weights α_k per channel.
+4. Weighted sum of feature maps + ReLU → coarse 7×7 heatmap.
+5. Bilinear upsample to original image resolution. Normalise to [0, 1].
 
-Local Method: LIME (Local Interpretable Model-agnostic Explanations) or SHAP.
+**Why Grad-CAM** over the alternatives:
 
-Question: "Which specific features contributed most heavily to the model's prediction for this exact instance?"
+| Method | Pros | Cons |
+|---|---|---|
+| **Grad-CAM** ✓ | No architecture change, fast (1 fwd + 1 bwd), stable, class-discriminative | Low spatial resolution (7×7) |
+| Saliency | Very fast | Noisy, gradient saturation in deep nets |
+| Occlusion | Causal, no gradient issues | O(H×W) forward passes — very slow |
+| CAM | High quality | Requires GlobalAvgPool head — needs architecture change |
 
-Global Method: Partial Dependence Plots (PDP).
+---
 
-Question: "On average, how does changing the value of a specific feature impact the model's predictions across all instances?"
+## Requirements
 
-Exercise 6.3: Saliency vs. Occlusion
-Descriptions:
+```bash
+pip install torch torchvision matplotlib numpy pillow scikit-learn
 
-Saliency Method: A gradient-based approach that calculates the derivative of the output with respect to the input (e.g., pixels). It highlights regions where a tiny mathematical change would cause the largest shift in the prediction.
-Occlusion Method: A perturbation-based approach that systematically masks or hides portions of the input (e.g., using a sliding grey square) and measures the resulting drop in the model's confidence.
+```
+## Outputs
 
-Comparison:
+```
+outputs/
+  6.5_gradcam_correct_traffic_light.png   2 correctly classified TL images + heatmaps
+  6.5_gradcam_correct_pedestrian.png      2 correctly classified pedestrian images + heatmaps
+  6.5_gradcam_correct_vehicle.png         1 correctly classified vehicle image + heatmap
+  6.6_gradcam_misclassified.png           3 misclassified images + heatmaps (2 ped FN, 1 veh FN)
+  6.6_gradcam_ood_{name}.png              1 figure per OOD split with heatmaps + OOD accuracy
+```
 
-Saliency Advantage: Computationally highly efficient, typically requiring only a single backward pass.
-Saliency Disadvantage: Can be noisy, visually misleading, and susceptible to issues like gradient saturation (failing to highlight important features if the model is already 100% confident).
-Occlusion Advantage: Highly intuitive and establishes a clear causal link (proving a specific region was necessary for the prediction).
-Occlusion Disadvantage: Computationally very expensive, requiring a new forward pass for every masked patch.
+Each figure shows: **original image (top row) | Grad-CAM overlay (bottom row)**, with green title = correct, red title = misclassified.
 
-Exercise 6.4: Chain-of-Thought Fidelity
-1. Faithfulness & Verification
-Faithfulness: A thinking trace is faithful if the generated text genuinely reflects the actual causal reasoning process the model used to arrive at its final output.
-Why it's hard to verify: LLMs operate via billions of abstract mathematical activations. We cannot easily map the generated English words back to the actual internal matrix multiplications to prove causality.
+---
 
-2. Simulatability
+## Key Results
 
-Definition: A trace is simulatable if a human observer can accurately predict the model's final answer by reading only the thinking trace.
-Example (Satisfied but Unfaithful): A model has a hidden bias to always output "Paris" when a prompt is written in French.
-Asked a math question in French, it generates a fabricated, complex math trace that coincidentally concludes with the population of Paris.
-The trace is simulatable (the human expects the answer "Paris" based on the text), but unfaithful (the model actually chose Paris solely because of the French language prompt).
+### Ex 6.5 — Correctly Classified Images
 
-3. Counterfactual Simulatability
+| Model | Highlighted region | Matches object? |
+|---|---|---|
+| Traffic Light | Upper-centre / upper-left (where TL appears) |  Broadly correct |
+| Pedestrian | Lower road / car bonnet (no pedestrian zone) | Correct for true negatives |
+| Vehicle | Directly on the vehicle |  Best localisation |
 
-What it adds: It tests whether intervening on (changing) a premise in the prompt or trace logically alters the final output in the exact way the trace dictates it should.
-Why it's stricter: It establishes a causal link, proving that the model's final answer actually depends on the logic articulated in the trace, rather than just being a post-hoc rationalization.
+### Ex 6.5 — Misclassified Images
 
-4. Safety Risk of Unfaithful Traces
-Risk: It triggers automation bias, causing humans to place unwarranted trust in a flawed model because the output is accompanied by a highly convincing, but fake, logical explanation.
-Concrete Example: A military AI identifies a civilian vehicle as a tank due to a spurious correlation (e.g., the image was taken at dusk).
- However, it outputs a highly logical, unfaithful trace detailing the vehicle's "armor plating and thermal signature." A human commander trusts the logical explanation and authorizes a lethal strike based on a flawed underlying prediction.
+All three failures share the same root cause: the model attended to **background regions** (sky, lane markings, treeline, kerb) instead of the target object. This indicates the model learned scene-level statistics rather than robust object features.
+
+### Ex 6.6 — OOD Accuracy
+
+| Model | In-distribution | Fog | Night |
+|---|---|---|---|
+| Traffic Light | ~0.85 | 0.439 | 0.270  |
+| Pedestrian | ~0.87 | 0.780  | 0.485  |
+| Vehicle | ~0.82 | 0.545  | 0.736 ~ |
+
+### Ex 6.6 — Spurious Features Observed
+
+- **Night — Traffic Light:** Model attends to streetlights and road reflections instead of traffic lights.
+- **Night — Pedestrian:** Bright puddle/reflection triggers a false positive — model relies on brightness as a pedestrian proxy.
+- **Fog — all models:** Heatmaps become diffuse and spread across fog texture; no focused object attention.
+- **Vehicle model at night:** Only OOD success — large high-contrast vehicle preserves correct attribution.
+
+> **Safety insight:** Diffuse or semantically incorrect Grad-CAM maps are a *leading indicator* of distribution shift, detectable before accuracy metrics flag a problem. Runtime heatmap monitoring (e.g. checking activation centroid vs. expected object region) could serve as an early warning system.
+
+---
+
