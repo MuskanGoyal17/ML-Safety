@@ -1,0 +1,8 @@
+Exercise 9.4 — Mean Softmax Confidence per Condition
+=======================================================
+Condition             N images   Mean MSP   Std MSP
+-------------------------------------------------------
+in_distribution           3600     0.7623    0.1441
+fog                       3600     0.7441    0.1159
+night                     3600     0.6498    0.1039
+town                      3600     0.7592    0.1295

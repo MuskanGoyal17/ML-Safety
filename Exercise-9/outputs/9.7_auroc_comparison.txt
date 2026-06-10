@@ -1,0 +1,7 @@
+Exercise 9.7 — Mahalanobis vs MSP AUROC Comparison
+=======================================================
+OOD scenario      MSP AUROC   Mahal AUROC    Delta
+-------------------------------------------------------
+fog                  0.5421        0.9818  +0.4397
+night                0.7243        0.9998  +0.2755
+town                 0.5092        0.8197  +0.3104
