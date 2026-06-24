@@ -1,0 +1,151 @@
+# Sheet 7 — Uncertainty Quantification: Setup & Run Guide (Google Colab)
+
+## Files in this submission
+
+| File | Purpose |
+|------|---------|
+| `calibration.py` | Main script — exercises 7.4, 7.5, 7.6 |
+| `sheet7_report.md` | Written answers — exercises 7.1–7.7 |
+| `README.md` | This file |
+
+---
+
+## What the script produces
+
+| Output file | Exercise | Contents |
+|-------------|----------|---------|
+| `7.4_reliability_diagrams.png` | 7.4 | Reliability diagram per model |
+| `7.4_ece_table.txt` | 7.4 | ECE per model (uncalibrated) |
+| `7.5_temperature_search.png` | 7.5 | Validation NLL vs T per model |
+| `7.5_ece_before_after.txt` | 7.5 | Best T + ECE before/after per model |
+| `7.6_cost_loss_table.txt` | 7.6 | 2×2 cost-loss table for pedestrian model |
+
+---
+
+## Drive structure expected
+
+```
+MyDrive/MyDataset/
+├── 2026/2026/
+│   ├── sheet3.zip           ← contains sheet3/dataset.py
+│   ├── train.zip
+│   ├── validation.zip       ← needed for 7.5 temperature search
+│   └── test.zip
+└── sheet3_results/
+    └── checkpoints/
+        ├── pedestrian.pt
+        ├── traffic_light.pt
+        └── vehicle.pt
+```
+
+---
+
+## Colab setup cells
+
+### CELL 1 — Mount Drive
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
+
+### CELL 2 — Install dependencies
+```python
+!pip install -q torch torchvision matplotlib scikit-learn pillow pandas numpy
+```
+
+### CELL 3 — Extract sheet3.zip
+```python
+import zipfile, os
+
+with zipfile.ZipFile(
+        '/content/drive/MyDrive/MyDataset/2026/2026/sheet3.zip', 'r') as z:
+    z.extractall('/content/')
+
+assert os.path.exists('/content/sheet3/dataset.py'), \
+    "dataset.py not found — check zip path"
+print("✓ /content/sheet3/dataset.py ready")
+```
+
+### CELL 4 — Extract dataset splits
+```python
+import zipfile, os
+
+BASE = '/content/drive/MyDrive/MyDataset/2026/2026'
+DEST = '/content/data/MyDataset'
+os.makedirs(DEST, exist_ok=True)
+
+for name in ['train.zip', 'validation.zip', 'test.zip']:
+    zpath = f'{BASE}/{name}'
+    if os.path.exists(zpath):
+        print(f'Extracting {name} ...')
+        with zipfile.ZipFile(zpath, 'r') as z:
+            z.extractall(DEST)
+        print(f' FOUND')
+    else:
+        print(f'  NOT FOUND: {zpath}')
+
+# Verify
+for split in ['train', 'validation', 'test']:
+    ok = os.path.exists(f'{DEST}/{split}/labels.csv')
+    print(f"{'✓' if ok else '✗'} {split}/labels.csv")
+```
+
+### CELL 5 — Upload calibration.py
+Upload manually. 
+It lands at `/content/calibration.py`.
+
+### CELL 6 — Confirm checkpoint task keys
+```python
+import torch, os
+
+CKPT_DIR = '/content/drive/MyDrive/MyDataset/sheet3_results/checkpoints'
+for fname in sorted(os.listdir(CKPT_DIR)):
+    if fname.endswith('.pt'):
+        state = torch.load(f'{CKPT_DIR}/{fname}', map_location='cpu')
+        print(f"{fname:35s}  task={state.get('task'):<20s}  "
+              f"label_col={state.get('label_column')}")
+```
+
+### CELL 7 — Set checkpoint paths (adjust names to match Cell 6 output)
+```python
+CKPT_DIR = '/content/drive/MyDrive/MyDataset/sheet3_results/checkpoints'
+DATA_ROOT = '/content/data/MyDataset'
+
+# Set each to the file whose internal task= matches
+CKPT_PEDESTRIAN  = f'{CKPT_DIR}/pedestrain.pt'   # task=pedestrian
+CKPT_TRAFFIC     = f'{CKPT_DIR}/traffic_light.pt'   # task=traffic_light
+CKPT_VEHICLE     = f'{CKPT_DIR}/vehicle.pt'   # task=vehicle
+
+
+### CELL 8 — Running all exercises at once
+```python
+!python /content/calibration.py \
+    --data-root  {DATA_ROOT} \
+    --checkpoint {CKPT_PEDESTRIAN} {CKPT_TRAFFIC} {CKPT_VEHICLE} \
+    --out-dir    /content/outputs \
+    --exercises  7.4,7.5,7.6 \
+    --batch-size 64
+```
+
+### CELL 9 — View outputs
+```python
+from IPython.display import Image, display
+
+display(Image('/content/outputs/7.4_reliability_diagrams.png'))
+print(open('/content/outputs/7.4_ece_table.txt').read())
+
+display(Image('/content/outputs/7.5_temperature_search.png'))
+print(open('/content/outputs/7.5_ece_before_after.txt').read())
+
+print(open('/content/outputs/7.6_cost_loss_table.txt').read())
+```
+
+### CELL 10 — Save outputs to Drive
+```python
+import shutil, os
+save_to = '/content/drive/MyDrive/MyDataset/sheet7_results'
+os.makedirs(save_to, exist_ok=True)
+shutil.copytree('/content/outputs', f'{save_to}/outputs', dirs_exist_ok=True)
+print(f" Saved to {save_to}/outputs")
+```
+
