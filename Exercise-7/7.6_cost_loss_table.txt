@@ -1,0 +1,11 @@
+Exercise 7.6 — Cost-Optimal Decision Threshold
+C_FN=100  C_FP=1  τ*=0.0099
+=================================================================
+
+Model: pedestrian
+                                         τ=0.5               τ*=0.0099
+──────────────────────────────────────────────────────────────────────
+uncalibrated            FP=   0 FN= 706 L= 70600  FP=2894 FN=   0 L=  2894
+calibrated              FP=   0 FN= 706 L= 70600  FP=2894 FN=   0 L=  2894
+
+Best: uncalibrated + τ*=0.0099  → total loss = 2894

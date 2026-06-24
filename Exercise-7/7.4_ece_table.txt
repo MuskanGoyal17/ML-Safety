@@ -1,0 +1,7 @@
+Exercise 7.4 — ECE (uncalibrated, T=1.0)
+=============================================
+Model                      ECE  Calibration
+---------------------------------------------
+pedestrian              0.1204  underconfident
+traffic_light           0.1063  underconfident
+vehicle                 0.1401  underconfident
