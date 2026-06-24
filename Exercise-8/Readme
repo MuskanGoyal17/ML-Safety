@@ -1,0 +1,140 @@
+# Sheet 8 — Adversarial ML: Setup & Run Guide (Google Colab)
+
+## Files in this submission
+
+| File | Purpose |
+|------|---------|
+| `adversarial_attack.py` | Main script — exercises 8.4 and 8.5 |
+| `sheet8_report.md` | Written answers — exercises 8.1–8.6 |
+| `README.md` | This file |
+
+---
+
+## What the script produces
+
+| Output file | Exercise | Contents |
+|-------------|----------|---------|
+| `8.4_adversarial_examples_<task>.png` | 8.4 | 3 rows × 4 cols: clean \| ε=0.01 \| ε=0.05 \| ε=0.10 |
+| `8.5_recall_drop_table.txt` | 8.5 | Clean + adversarial recall per model per ε |
+| `8.5_recall_drop_plot.png` | 8.5 | Grouped bar chart of recall |
+
+---
+
+## Drive structure expected
+
+```
+MyDrive/MyDataset/
+├── 2026/2026/
+│   ├── sheet3.zip        ← contains sheet3/dataset.py
+│   └── test.zip          ← test split used for 8.4 and 8.5
+└── sheet3_results/
+    └── checkpoints/
+        ├── pedestrian.pt
+        ├── traffic_light.pt
+        └── vehicle.pt
+```
+
+---
+
+## Colab setup cells
+
+### CELL 1 — Mount Drive
+```python
+from google.colab import drive
+drive.mount('/content/drive')
+```
+
+### CELL 2 — Install dependencies
+```python
+!pip install -q torch torchvision matplotlib scikit-learn pillow pandas
+```
+
+### CELL 3 — Extract sheet3.zip
+```python
+import zipfile, os
+
+with zipfile.ZipFile(
+        '/content/drive/MyDrive/MyDataset/2026/2026/sheet3.zip', 'r') as z:
+    z.extractall('/content/')
+
+assert os.path.exists('/content/sheet3/dataset.py')
+print("yes")
+```
+
+### CELL 4 — Extract test split
+```python
+import zipfile, os
+
+os.makedirs('/content/data/MyDataset', exist_ok=True)
+with zipfile.ZipFile(
+        '/content/drive/MyDrive/MyDataset/2026/2026/test.zip', 'r') as z:
+    z.extractall('/content/data/MyDataset')
+
+print("test/labels.csv exists:",
+      os.path.exists('/content/data/MyDataset/test/labels.csv'))
+```
+
+### CELL 5 — Upload adversarial_attack.py
+Upload manually  
+It should land at `/content/adversarial_attack.py`.
+
+
+### CELL 6 — Confirm checkpoint task keys
+```python
+import torch
+
+CKPT_DIR = '/content/drive/MyDrive/MyDataset/sheet3_results/checkpoints'
+
+for fname in os.listdir(CKPT_DIR):
+    if fname.endswith('.pt'):
+        state = torch.load(f'{CKPT_DIR}/{fname}', map_location='cpu')
+        print(f"{fname:30s}  task={state.get('task')}")
+```
+
+### CELL 7 — Set checkpoint paths
+```python
+# Set each variable to the file whose internal task= matches
+CKPT_DIR = '/content/drive/MyDrive/MyDataset/sheet3_results/checkpoints'
+
+CKPT_PEDESTRIAN   = f'{CKPT_DIR}/pedestrain.pt'   
+CKPT_TRAFFIC      = f'{CKPT_DIR}/traffic_light.pt'   
+CKPT_VEHICLE      = f'{CKPT_DIR}/vehicle.pt'   
+
+DATA_ROOT = '/content/data/MyDataset'
+```
+
+### CELL 10 — Run both exercises
+```python
+!python /content/adversarial_attack.py \
+    --data-root {DATA_ROOT} \
+    --checkpoint {CKPT_PEDESTRIAN} {CKPT_TRAFFIC} {CKPT_VEHICLE} \
+    --out-dir /content/outputs \
+    --exercises 8.4,8.5 \
+    --n-samples 100 \
+    --batch-size 32
+```
+
+### CELL 11 — View results
+```python
+from IPython.display import Image, display
+import glob
+
+for p in sorted(glob.glob('/content/outputs/8.4_adversarial_examples_*.png')):
+    print(p)
+    display(Image(p))
+
+display(Image('/content/outputs/8.5_recall_drop_plot.png'))
+print(open('/content/outputs/8.5_recall_drop_table.txt').read())
+```
+
+### CELL 12 — Save to Drive
+```python
+import shutil, os
+save_to = '/content/drive/MyDrive/MyDataset/sheet8_results'
+os.makedirs(save_to, exist_ok=True)
+shutil.copytree('/content/outputs', f'{save_to}/outputs', dirs_exist_ok=True)
+print(f"saved to {save_to}/outputs")
+```
+
+---
+
